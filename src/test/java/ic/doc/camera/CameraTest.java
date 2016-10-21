@@ -52,28 +52,37 @@ public class CameraTest {
 
     @Test
     public void switchingCameraOffDoesNotPowerDownSensor() {
+        readWriteDataWithoutPoweringUpSensor();
         context.checking(new Expectations(){{
-            exactly(1).of(sensor).readData();
-            ignoring(sensor).powerUp();
-            exactly(1).of(memoryCard).write(with(any(byte[].class)));
             exactly(0).of(sensor).powerDown();
         }});
-        camera.powerOn();
-        camera.pressShutter();
-        camera.powerOff();
+        cameraOnOffChecking();
     }
 
     @Test
     public void powerDownSensorWhenWriteComplete() {
+        readWriteDataWithoutPoweringUpSensor();
+        context.checking(new Expectations(){{
+            exactly(1).of(sensor).powerDown();
+        }});
+        cameraOnOffChecking();
+        camera.writeComplete();
+    }
+
+    private void readWriteDataWithoutPoweringUpSensor(){
         context.checking(new Expectations(){{
             exactly(1).of(sensor).readData();
             ignoring(sensor).powerUp();
-            exactly(1).of(sensor).powerDown();
             exactly(1).of(memoryCard).write(with(any(byte[].class)));
         }});
-        camera.powerOn();
-        camera.pressShutter();
-        camera.powerOff();
-        camera.writeComplete();
     }
+
+    private void cameraOnOffChecking(){
+      camera.powerOn();
+      camera.pressShutter();
+      camera.powerOff();
+    }
+
+
+
 }
