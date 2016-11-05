@@ -1,31 +1,31 @@
 package ic.doc.camera;
 
 public class Camera implements WriteListener {
-    boolean isOn;
-    boolean isWriting;
-    Sensor sensor;
-    MemoryCard memoryCard;
+
+    private final Sensor sensor;
+    private final MemoryCard memoryCard;
+    private boolean powerIsOn = false;
+    private boolean isWriting = false;
 
     public Camera(Sensor sensor, MemoryCard memoryCard){
         this.sensor = sensor;
         this.memoryCard = memoryCard;
-        isOn = false;
     }
 
     public void pressShutter() {
-        if (isOn) {
-            isWriting = true;
+        if (powerIsOn) {
             memoryCard.write(sensor.readData());
+            isWriting = true;
         }
     }
 
     public void powerOn() {
-        isOn = true;
+        powerIsOn = true;
         sensor.powerUp();
     }
 
     public void powerOff() {
-        isOn = false;
+        powerIsOn = false;
         if(!isWriting) {
             sensor.powerDown();
         }
@@ -33,7 +33,7 @@ public class Camera implements WriteListener {
 
     public void writeComplete() {
         isWriting = false;
-        if(!isOn){
+        if(!powerIsOn){
             sensor.powerDown();
         }
     }
